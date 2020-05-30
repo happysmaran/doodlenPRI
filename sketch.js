@@ -1,45 +1,57 @@
-var ball;
-var database, pos;
+var drawingball;
+var database, pos, piece;
+
+var trajectory=[];
 
 function setup(){
     createCanvas(500,500);
 
     database=firebase.database();
 
-    ball = createSprite(250,250,10,10);
-    ball.shapeColor = "red";
+    piece=loadImage("piece.png");
 
-    database.ref("ball/position").on("value",readPos, showErr);
+    drawingball = createSprite(250,250,10,10);
+    drawingball.shapeColor = "red";
+
+    database.ref("drawingball/position").on("value",readPos, showErr);
 }
 
 function draw(){
     background("white");
-    if(keyDown(LEFT_ARROW)){
-        changePosition(-1,0);
-    }
-    else if(keyDown(RIGHT_ARROW)){
-        changePosition(1,0);
-    }
-    else if(keyDown(UP_ARROW)){
-        changePosition(0,-1);
-    }
-    else if(keyDown(DOWN_ARROW)){
-        changePosition(0,+1);
-    }
     drawSprites();
+
+    var position = [drawingball.x, drawingball.y];
+    trajectory.push(position);
+
+    for(var i=0; i<trajectory.length; i++){
+        image(piece, trajectory[i][0], trajectory[i][1]);
+    }
 }
 
-function changePosition(x,y){
-    database.ref("ball/position").set({
-        x:pos.x+x,
-        y:pos.y+y
+function changePosition(){
+    database.ref("drawingball/position").set({
+        x:mouseX,
+        y:mouseY
     })
+}
+
+function mouseDragged(){
+    drawingball.x=mouseX;
+    drawingball.y=mouseY;
+
+    database.ref("drawingball/position").set({
+        x:mouseX,
+        y:mouseY
+    })
+}
+
+function mouseReleased(){
 }
 
 function readPos(data){
     pos=data.val();
-    ball.x=pos.x;
-    ball.y=pos.y;
+    drawingball.x=pos.x;
+    drawingball.y=pos.y;
 }
 
 function showErr(){
