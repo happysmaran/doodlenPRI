@@ -26,6 +26,10 @@ function draw(){
     for(var i=0; i<trajectory.length; i++){
         image(piece, trajectory[i][0], trajectory[i][1]);
     }
+
+    database.ref("drawingball").set({
+        drawings:trajectory
+    })
 }
 
 function changePosition(){
